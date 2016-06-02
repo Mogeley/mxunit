@@ -174,8 +174,22 @@
 								</table>
 							</cfif>
 							<cfset classname = this.testResults[i].component>
-							<!--- printing incorrect results for MXUnitInstallTest.cfc - could be engine bug --->
-							<cfset classtesturl = CGI.CONTEXT_PATH & "/" & Replace(this.testResults[i].component, ".", "/", "all") & ".cfc?method=runtestremote&amp;output=html">
+							
+							<!--- get proper Context Path --->
+							<cfset var contextPath = CGI.CONTEXT_PATH>
+							<cfif contextPath is "">
+								<!--- remove filename at the end of the path --->
+								<cfset contextPath = reReplaceNoCase(CGI.SCRIPT_NAME, "/[a-z0-9]+\.(cfm|cfc)", "")>
+							</cfif>
+
+							<!--- use the context path when the full path is not used --->
+							<cfif lcase("/" & Replace(this.testResults[i].component, ".", "/", "all")) contains lcase(contextPath)>
+								<!--- exclude context path --->
+								<cfset classtesturl = "/" & Replace(this.testResults[i].component, ".", "/", "all") & ".cfc?method=runtestremote&amp;output=html">
+							<cfelse>
+								<!--- include context path --->
+								<cfset classtesturl = contextPath & "/" & Replace(this.testResults[i].component, ".", "/", "all") & ".cfc?method=runtestremote&amp;output=html">
+							</cfif>
 
 							<h3><a href="#classtesturl#" title="Run all tests in #this.testResults[i].component#">#this.testResults[i].component#</a></h3>
 
